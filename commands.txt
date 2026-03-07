@@ -1,0 +1,5 @@
+// terminal
+npm init
+npm i bootstrap@5.3.8 --save
+npm i bootstrap-icons --save
+npm install axios --save
