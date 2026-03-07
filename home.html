@@ -18,6 +18,19 @@
         .card {
             margin-top: 30px;
         }
+        #add-btn {
+            position: fixed;
+            bottom: 5%;
+            right: 7%;
+            width:  70px;
+            height: 70px;
+            font-size: 50px;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.3);
+        }
     </style>
 
 </head>
@@ -87,7 +100,41 @@
     
     <!--// Register Modal //-->
 
+    <!-- Create Post Modal -->
+    <div class="modal fade" id="create-post-Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Create A New Post</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                <div class="mb-3">
+                    <label for="recipient-name" class="col-form-label" >Title :</label>
+                    <input type="text" class="form-control"  id="">
+                </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="CreateNewPostClicked()" >Create</button>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+    <!--// Create Post Modal //-->
+
     <!--//========== Modals ==========//-->
+
+    <!--========== Add Post Button ==========-->
+
+    <div class="bg-primary" id="add-btn" data-bs-toggle="modal" data-bs-target="#create-post-Modal">            
+        +
+    </div>
+
+    <!--//========== Add Post Button ==========//-->
 
     <!--========== Alerts ==========-->
         <div class="fade show" style="position: fixed; z-index: 99999; width: 30%; bottom: 0; right: 0;" id="success-alert" ></div>
@@ -118,6 +165,14 @@
                             <div class="d-flex w-100 justify-content-end"></div>
                                 <button id="login-btn" type="button" data-bs-toggle="modal" data-bs-target="#login-Modal" class="btn btn-outline-success mx-2">Login</button>
                                 <button id="register-btn" type="button" data-bs-toggle="modal" data-bs-target="#register-Modal"  class="btn btn-outline-success">Register</button>
+                                <span class="d-flex align-items-center" id="user-div">
+                                    <div class="flex-shrink-0">
+                                        <img src="./placeholder/1.jpg" height="40px" width="40px" class="rounded-circle" >
+                                    </div>
+                                    <div class="flex ms-1">
+                                        yarob99
+                                    </div>
+                                </span>
                                 <button onclick="logout()" id="logout-btn" type="button" data-bs-toggle="modal" class="btn btn-outline-danger mx-2">Logout</button>
                             </div>
 
@@ -211,7 +266,8 @@
                                         </svg>
                                         <span>
                                             (3) Comments
-                                        </span>                                    </span>
+                                        </span>                                    
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -386,6 +442,10 @@
         });
     }
 
+    function CreateNewPostClicked(){
+        alert("hi")
+    }
+
     function logout(){
         localStorage.removeItem("token")
         localStorage.removeItem("user")
@@ -434,14 +494,22 @@
         const loginBtn = document.getElementById("login-btn")
         const registerBtn = document.getElementById("register-btn")
         const logoutBtn = document.getElementById("logout-btn")
+        const userDiv = document.getElementById("user-div")
+        const addBtn = document.getElementById("add-btn")
+        
+        console.log(userDiv)
         if ( token == null ){       // user is guest( not logged in)
             loginBtn.style.display = "block"
             registerBtn.style.display = "block"
             logoutBtn.style.display = "none"
+            userDiv.style.setProperty("display","none","important")
+            addBtn.style.setProperty("display","none","important")
         }else {
             loginBtn.style.display = "none"
             registerBtn.style.display = "none"
             logoutBtn.style.display = "block"
+            userDiv.style.setProperty("display","flex","important")
+            addBtn.style.setProperty("display","block","important")
         }
     }
 
