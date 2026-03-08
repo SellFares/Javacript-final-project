@@ -296,13 +296,14 @@
     
     const baseUrl = 'https://tarmeezacademy.com/api/v1';
     let currentPage = 1
+    let lastPage = 1
 
     //================ Infinite Scrool ================//
     window.addEventListener("scroll", function() {
         const endOfPage = window.innerHeight + window.pageYOffset  >= document.body.offsetHeight
         //let endOfPage = window.innerHeight + window.scrollY  >= document.body.scrollHeight
-        console.log(endOfPage)
-        if (endOfPage){
+        // console.log(endOfPage)
+        if (endOfPage && currentPage < lastPage){
             currentPage = currentPage + 1
             getPosts(false,currentPage )
         }
@@ -318,6 +319,8 @@
             let response = await fetch(baseUrl+`/posts?limit=15&page=${page}`)
             const data = await response.json() 
             const Posts = data.data ;
+            //console.log(data.meta.last_page )
+            lastPage = data.meta.last_page 
             //console.log(Posts)
             if ( reload  ){
                 document.getElementById("posts").innerHTML = ""
