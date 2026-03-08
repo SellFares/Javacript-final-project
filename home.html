@@ -88,6 +88,10 @@
                     <label for="message-text" class="col-form-label"  >Password :</label>
                     <input type="password" class="form-control"  id="register-password-input">
                 </div>
+                <div class="mb-3">
+                        <label for="recipient-name" class="col-form-label" >Profile Image :</label>
+                        <input type="file" class="form-control"  id="register-image-input">
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -110,10 +114,18 @@
             </div>
             <div class="modal-body">
                 <form>
-                <div class="mb-3">
-                    <label for="recipient-name" class="col-form-label" >Title :</label>
-                    <input type="text" class="form-control"  id="">
-                </div>
+                    <div class="mb-3">
+                        <label for="recipient-name" class="col-form-label" >Title :</label>
+                        <input type="text" class="form-control"  id="post-title-input">
+                    </div>
+                    <div class="mb-3">
+                        <textarea id="post-body-input" cols="30" rows="10" style="resize: none ;width: 100%; height: 100px; border-color: gray; border-radius: 10px;">
+                        </textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="recipient-name" class="col-form-label" >Profile Image :</label>
+                        <input type="file" class="form-control"  id="post-image-input">
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -167,9 +179,9 @@
                                 <button id="register-btn" type="button" data-bs-toggle="modal" data-bs-target="#register-Modal"  class="btn btn-outline-success">Register</button>
                                 <span class="d-flex align-items-center" id="user-div">
                                     <div class="flex-shrink-0">
-                                        <img src="./placeholder/1.jpg" height="40px" width="40px" class="rounded-circle" >
+                                        <img id="nav-user-image" src="./placeholder/1.jpg"  height="40px" width="40px" class="rounded-circle" >
                                     </div>
-                                    <div class="flex ms-1">
+                                    <div id="nav-username" class="flex ms-1">
                                         yarob99
                                     </div>
                                 </span>
@@ -281,18 +293,36 @@
     <!--// Main Content //-->
 </body>
 <script>
+    
+    const baseUrl = 'https://tarmeezacademy.com/api/v1';
+    let currentPage = 1
+
+    //================ Infinite Scrool ================//
+    window.addEventListener("scroll", function() {
+        const endOfPage = window.innerHeight + window.pageYOffset  >= document.body.offsetHeight
+        //let endOfPage = window.innerHeight + window.scrollY  >= document.body.scrollHeight
+        console.log(endOfPage)
+        if (endOfPage){
+            currentPage = currentPage + 1
+            getPosts(false,currentPage )
+        }
+    } )
 
     setupUI()
 
-    let baseUrl = 'https://tarmeezacademy.com/api/v1';
+    getPosts()
+
     
-    async function getPosts() {
+    async function getPosts(reload = true,page = 1) {
         try {
-            let response = await fetch(baseUrl+"/posts?limit=5")
+            let response = await fetch(baseUrl+`/posts?limit=15&page=${page}`)
             const data = await response.json() 
             const Posts = data.data ;
             //console.log(Posts)
-            document.getElementById("posts").innerHTML = ""
+            if ( reload  ){
+                document.getElementById("posts").innerHTML = ""
+            }
+            // document.getElementById("posts").innerHTML = ""
             for ( Post of Posts ){
                 const author = Post.author;
                 let postTitle = ""
@@ -375,13 +405,11 @@
         }
     }
 
-    getPosts()
-    
 
     function LoginBtnClicked() {
         const username = document.getElementById("username-input").value
         const password = document.getElementById("password-input").value
-
+        
         const params = {
             "username" : username,
             "password" : password
@@ -394,6 +422,8 @@
             //console.log(response.data.token);
             localStorage.setItem("token",response.data.token)
             localStorage.setItem("user",JSON.stringify(response.data.user))     // khater el user hoa json so lezemna nsaviwh ka string  
+
+            console.log(response.data.user.profile_image)
 
             // bech yetsaker el login modal wakt yenjah login
             const modal =  document.getElementById("login-Modal")
@@ -412,17 +442,31 @@
         const name = document.getElementById("register-name-input").value
         const username = document.getElementById("register-username-input").value
         const password = document.getElementById("register-password-input").value
+        const image = document.getElementById("register-image-input").files[0]
+        
+        // console.log(name, "  ", username , "  " , password)
 
-        console.log(name, "  ", username , "  " , password)
-        const params = {
+        /*const params = {
             "username" : username,
             "password" : password,
             "name" : name
-        }
+        }*/
+
+        let formData = new FormData()
+
+        formData.append("username",username)
+        formData.append("password",password)
+        formData.append("image",image)
+        formData.append("name",name)
 
         const url = baseUrl+"/register" ;
+        const headers = {
+            "content-Type": "multipart/form-data"
+        }
 
-        axios.post(url,params )
+        axios.post(url,formData, {
+            headers: headers
+        } )
         .then(function (response) {
             //console.log(response.data.token);
             localStorage.setItem("token",response.data.token)
@@ -432,7 +476,7 @@
             const modal =  document.getElementById("register-Modal")
             const modalInstance = bootstrap.Modal.getInstance(modal)
             modalInstance.hide()
-            showAlert("New user Registred in successfully",)
+            showAlert("New user Registred in successfully")
             setupUI()
         })
         .catch(function (error) {
@@ -443,7 +487,40 @@
     }
 
     function CreateNewPostClicked(){
-        alert("hi")
+        const title = document.getElementById("post-title-input").value
+        const body = document.getElementById("post-body-input").value       // .value ki yebda input naw3ouu text 
+        const image = document.getElementById("post-image-input").files[0]     // .files hiya function w ahna hachetna ken b file loul hetheka a3lech khtarna .files[0]
+        const token = localStorage.getItem("token")
+
+        let formData = new FormData()                   // nesta3mlou el form data ki hachetna b file donc nbadlou el params b formdata
+
+        formData.append("body",body)
+        formData.append("title",title)
+        formData.append("image",image)
+        
+        const url = baseUrl+"/posts" ;
+        
+        const headers = {
+            "content-Type": "multipart/form-data",      // hethi zeda nektbopuha khater kbal kena nab3athou json ama taw formData so lezemna nkoloulou
+            "authorization" : `Bearer ${token}`
+        }
+        axios.post(url,formData, {
+            headers : headers
+        } )
+        .then(function (response) {
+            // console.log(response);
+            const modal =  document.getElementById("create-post-Modal")
+            const modalInstance = bootstrap.Modal.getInstance(modal)
+            modalInstance.hide()
+            showAlert("New Post Has Benn Created")
+            getPosts()
+            setupUI()
+        })
+        .catch(function (error) {
+            const message = error.response.data.message 
+            showAlert(message, "danger")
+            //console.log(error);
+        });
     }
 
     function logout(){
@@ -496,21 +573,36 @@
         const logoutBtn = document.getElementById("logout-btn")
         const userDiv = document.getElementById("user-div")
         const addBtn = document.getElementById("add-btn")
-        
-        console.log(userDiv)
+
         if ( token == null ){       // user is guest( not logged in)
             loginBtn.style.display = "block"
             registerBtn.style.display = "block"
             logoutBtn.style.display = "none"
             userDiv.style.setProperty("display","none","important")
             addBtn.style.setProperty("display","none","important")
-        }else {
+        }else { // for logged in user
             loginBtn.style.display = "none"
             registerBtn.style.display = "none"
             logoutBtn.style.display = "block"
             userDiv.style.setProperty("display","flex","important")
             addBtn.style.setProperty("display","block","important")
+            const user = getCurrentUser()
+            
+            document.getElementById("nav-username").innerHTML = "@" + user.name
+            document.getElementById("nav-user-image").src = user.profile_image
+            
         }
+    }
+
+    function getCurrentUser(){
+        let user = null
+        const storageUser = localStorage.getItem("user")
+
+        if ( storageUser != null ){
+            user = JSON.parse(storageUser)
+        }
+
+        return user 
     }
 
 </script>
