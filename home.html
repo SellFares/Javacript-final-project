@@ -344,7 +344,7 @@
                                 <img class="rounded-circle border-2" src="${author.profile_image}" style="height: 30px; width: 30px;"  alt="...">
                                 <b>${author.username}</b>
                             </div>
-                            <div class="card-body">
+                            <div class="card-body" onclick="postClicked()" style="cursor: pointer">
                                 <img class="w-100" src="${Post.image}" >
                                 <h6 style="color: #86848b;" class="mt-1">${Post.created_at}</h6>
                                 <h5 >${postTitle}</h5>
@@ -434,6 +434,9 @@
         });
     }
 
+    function postClicked(){
+        alert("clickedpost")
+    }
 
 </script>
 </html>
