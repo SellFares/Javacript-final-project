@@ -160,7 +160,7 @@
             <div class="col-9">
                 <nav class="navbar navbar-expand-lg bg-light shadow rounded pt-3">
                     <div class="container-fluid">
-                        <a class="navbar-brand" href="#">SMP(Social Media App)</a>
+                        <a class="navbar-brand" href="home.html">SMP(Social Media App)</a>
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                             <span class="navbar-toggler-icon"></span>
                         </button>
@@ -344,7 +344,7 @@
                                 <img class="rounded-circle border-2" src="${author.profile_image}" style="height: 30px; width: 30px;"  alt="...">
                                 <b>${author.username}</b>
                             </div>
-                            <div class="card-body" onclick="postClicked()" style="cursor: pointer">
+                            <div class="card-body" onclick="postClicked(${Post.id})" style="cursor: pointer">
                                 <img class="w-100" src="${Post.image}" >
                                 <h6 style="color: #86848b;" class="mt-1">${Post.created_at}</h6>
                                 <h5 >${postTitle}</h5>
@@ -434,8 +434,9 @@
         });
     }
 
-    function postClicked(){
-        alert("clickedpost")
+    function postClicked(postId){
+        //alert(postId)
+        window.location = `postDetails.html?postId=${postId}`
     }
 
 </script>
