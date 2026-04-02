@@ -36,7 +36,7 @@ function setupUI() {
         logoutBtn.style.display = "block"
         userDiv.style.setProperty("display","flex","important")
         if ( addBtn != null ){
-            addBtn.style.setProperty("display","none","important")
+            addBtn.style.setProperty("display","block","important")
         }
         const user = getCurrentUser()
         
