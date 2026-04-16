@@ -37,9 +37,14 @@ async function getPosts(reload = true,page = 1) {
             
             let isMyPost = user != null && user.id == Post.author.id
 
-            let buttonDisplay = isMyPost ? "block" : "none"
+            let editButtonDisplay = ``
 
-
+            if ( isMyPost ){
+                editButtonDisplay = `
+                    <button class="btn btn-danger" style="float: right; margin-left: 5px;" onclick="ConfirmDeletePostClicked('${encodeURIComponent(JSON.stringify(Post))}')">Delete</button>
+                    <button class="btn btn-secondary" style="float: right; " onclick="editPostBtnClicked('${encodeURIComponent(JSON.stringify(Post))}')">Edit</button>  
+                `
+            }
             if ( Post.title != null ){
                 postTitle = Post.title ;
             }
@@ -53,7 +58,7 @@ async function getPosts(reload = true,page = 1) {
                             <img class="rounded-circle border-2" src="${author.profile_image}" style="height: 30px; width: 30px;"  alt="...">
                             <b>${author.username}</b>
 
-                            <button class="btn btn-secondary" style="float: right; display: ${buttonDisplay};" onclick="editPostBtnClicked('${encodeURIComponent(JSON.stringify(Post))}')">edit</button>
+                            ${editButtonDisplay}
                         </div>
                         <div class="card-body" onclick="postClicked(${Post.id})" style="cursor: pointer">
                             <img class="w-100" src="${Post.image}" >
@@ -192,3 +197,48 @@ function addPostClicked(){
     })
     postModal.toggle()
 }
+
+function ConfirmDeletePostClicked(PostObject){
+
+    let postModal = new bootstrap.Modal(document.getElementById("delete-post-Modal"), {
+
+    })
+    let post = JSON.parse(decodeURIComponent(PostObject))
+    document.getElementById("delete-post-id").value = post.id
+
+    postModal.toggle()
+}
+
+function confirmPostDeletion(){
+
+    const postId = document.getElementById("delete-post-id").value
+
+    const url = baseUrl+`/posts/${postId}` ;
+    
+    
+    const token = localStorage.getItem("token")
+
+    const headers = {
+        "authorization" : `Bearer ${token}`
+    }
+
+    axios.delete(url, {
+        headers : headers
+    } )
+    .then(function (response) {
+        console.log(response);
+        
+        // bech yetsaker el login modal wakt yenjah login
+        const modal =  document.getElementById("delete-post-Modal")
+        const modalInstance = bootstrap.Modal.getInstance(modal)
+        modalInstance.hide()
+        showAlert("Post deleted successfully","success")
+        getPosts()
+    })
+    .catch(function (error) {
+        const message = error.response.data.message 
+        showAlert(message, "danger")
+        //console.log(error);
+    });
+}
+
