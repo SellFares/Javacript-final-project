@@ -17,6 +17,7 @@ setupUI()
 getPosts()
 
 
+
 async function getPosts(reload = true,page = 1) {
     try {
         let response = await fetch(baseUrl+`/posts?limit=15&page=${page}`)
@@ -41,8 +42,10 @@ async function getPosts(reload = true,page = 1) {
 
             if ( isMyPost ){
                 editButtonDisplay = `
-                    <button class="btn btn-danger" style="float: right; margin-left: 5px;" onclick="ConfirmDeletePostClicked('${encodeURIComponent(JSON.stringify(Post))}')">Delete</button>
-                    <button class="btn btn-secondary" style="float: right; " onclick="editPostBtnClicked('${encodeURIComponent(JSON.stringify(Post))}')">Edit</button>  
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-danger" onclick="ConfirmDeletePostClicked('${encodeURIComponent(JSON.stringify(Post))}')">Delete</button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="editPostBtnClicked('${encodeURIComponent(JSON.stringify(Post))}')">Edit</button>
+                    </div>
                 `
             }
             if ( Post.title != null ){
@@ -51,42 +54,29 @@ async function getPosts(reload = true,page = 1) {
             //console.log(Post.tags)
             
             // console.log(Post.image);
+            const postImage = Post.image 
+            const profileImage = author.profile_image || "./placeholder/standard_profile_picture.png"
+            
             let content =  `
-                <!-- Post -->
-                    <div class="card shadow" >
-                        <div class="card-header">
-                            <img class="rounded-circle border-2" src="${author.profile_image}" style="height: 30px; width: 30px;"  alt="...">
-                            <b>${author.username}</b>
-
-                            ${editButtonDisplay}
+                <article class="card post-card">
+                    <div class="card-header post-header">
+                        <div class="post-author">
+                            <img class="avatar-sm" src="${profileImage}" alt="${author.username}">
+                            <span>@${author.username}</span>
                         </div>
-                        <div class="card-body" onclick="postClicked(${Post.id})" style="cursor: pointer">
-                            <img class="w-100" src="${Post.image}" >
-                            <h6 style="color: #86848b;" class="mt-1">${Post.created_at}</h6>
-                            <h5 >${postTitle}</h5>
-                            <p >${Post.body}</p>
-                            <hr>
-                            <div class="d-flex flex-row ">
-                                <span class="material-symbols-outlined">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pen" viewBox="0 0 16 16">
-                                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001m-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708z"/>
-                                    </svg>
-                                    <span>
-                                        (${Post.comments_count}) Comments
-                                    </span>                                    
-                                </span>
-                                <span id="post-tags-${Post.id}">
-                                    <p class="btn btn-sm rounded-5" style="background-color: gray; color: white">
-                                        Policy
-                                    </p>
-                                    <p class="btn btn-sm rounded-5" style="background-color: gray; color: white">
-                                        Policy
-                                    </p>
-                                </span> 
-                            </div>
+                        ${editButtonDisplay}
+                    </div>
+                    <div class="card-body post-body" onclick="postClicked('${Post.id}')"> 
+                        <img class="post-image" src="${postImage}" ${postImage ? '' : 'hidden'} alt="Post image">
+                        <p class="post-time">${timeAgo(Post.created_at)}</p>
+                        <h5 class="post-title">${postTitle}</h5>
+                        <p class="post-text">${Post.body}</p>
+                        <div class="post-footer">
+                            <span class="comments-pill">(${Post.comments_count}) Comments</span>
+                            <span class="tags-wrap" id="post-tags-${Post.id}"></span>
                         </div>
                     </div>
-                <!--// Post //-->
+                </article>
             `
             document.getElementById("posts").innerHTML += content
 
@@ -95,11 +85,11 @@ async function getPosts(reload = true,page = 1) {
             document.getElementById(currentPostTagsId).innerHTML = ""
 
             for ( tag of Post.tags ) {
-                console.log(tag.name)
+                // console.log(tag.name)
                 let tagsContent = `
-                    <p class="btn btn-sm rounded-5" style="background-color: gray; color: white">
+                    <span class="tag-pill">
                         ${tag.name}
-                    </p>
+                    </span>
                 `
                 document.getElementById(currentPostTagsId).innerHTML += tagsContent
             }
@@ -167,7 +157,8 @@ function CreateNewPostClicked(){
 }
 
 function postClicked(postId){
-    //alert(postId)
+    console.log(postId)
+
     window.location = `postDetails.html?postId=${postId}`
 }
 
