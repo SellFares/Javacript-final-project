@@ -1,5 +1,6 @@
 // const baseUrl = 'https://tarmeezacademy.com/api/v1';
-const baseUrl = 'http://localhost:8800/api';
+// const baseUrl = 'http://localhost:8800/api';
+const baseUrl = 'https://dailyfeed-as93.onrender.com/api';
 
 function setupUI() {
     const token = localStorage.getItem("token")
